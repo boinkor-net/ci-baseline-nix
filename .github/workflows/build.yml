@@ -17,4 +17,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v22
-      - run: nix build --no-link $${{inputs.root}}#$${{inputs.installable}}
+      - run: nix build --no-link ${{inputs.root}}#${{inputs.installable}}
