@@ -9,6 +9,7 @@ on:
 
 jobs:
   flake_check:
+    name: "nix flake check ${{inputs.root}}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

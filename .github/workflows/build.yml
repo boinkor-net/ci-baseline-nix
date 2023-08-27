@@ -13,6 +13,7 @@ on:
 
 jobs:
   flake_build:
+    name: "nix build ${{inputs.root}}#${{inputs.installable}}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
