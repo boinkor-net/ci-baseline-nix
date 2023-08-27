@@ -1,0 +1,16 @@
+name: "CI/Nix - tests"
+on:
+  workflow_call:
+    inputs:
+      root:
+        type: string
+        description: "Directory that the nix flake resides in."
+        default: "."
+
+jobs:
+  flake_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v22
+      - run: nix flake check $${{ inputs.root }}

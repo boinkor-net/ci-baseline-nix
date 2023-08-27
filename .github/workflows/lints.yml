@@ -1,0 +1,18 @@
+name: "CI/Nix - formatting"
+on:
+  workflow_call:
+    inputs:
+      root:
+        type: string
+        description: "Directory that the nix flake resides in."
+        default: "."
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v22
+      - run: cd $${{ inputs.root }} && nix fmt
+      - name: Show unformatted files, if any
+        run: git diff --exit-code
