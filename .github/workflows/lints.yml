@@ -14,6 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v22
+      - uses: DeterminateSystems/magic-nix-cache-action@v2
       - run: cd ${{ inputs.root }} && nix fmt
       - name: Show unformatted files, if any
         run: git diff --exit-code
