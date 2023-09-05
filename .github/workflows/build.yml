@@ -16,7 +16,7 @@ jobs:
     name: "nix build ${{inputs.root}}#${{inputs.installable}}"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v22
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v23
       - uses: DeterminateSystems/magic-nix-cache-action@v2
       - run: nix build --no-link ${{inputs.root}}#${{inputs.installable}}
