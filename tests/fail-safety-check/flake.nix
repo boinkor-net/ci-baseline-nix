@@ -2,7 +2,6 @@
   description = "a flake that should successfully pass the baseline-nix tests";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     some_input = {
       url = "path:./some_input";
       flake = false;
