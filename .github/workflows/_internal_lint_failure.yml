@@ -1,0 +1,39 @@
+# This workflow calls the reusable test workflow and ensures that the
+# tests do not pass.
+#
+# Please don't use this as a reusable workflow, because it is very
+# much not.
+
+name: Internal job invocation that expects a lint failure result
+on:
+  workflow_call:
+    inputs:
+      root:
+        description: "Directory containing the go.mod of the codebase under test"
+        type: string
+        default: "."
+      failing_job:
+        description: "Job that is intended to fail"
+        type: "string"
+
+jobs:
+  lints:
+    uses: "./.github/workflows/lints.yml"
+    with:
+      root: ${{inputs.root}}
+      _internal_continue_on_error: ${{inputs.failing_job}}
+
+  expect_lint_failure:
+    runs-on: ubuntu-latest
+    needs: lints
+    steps:
+      - name: transform expected failure
+        id: expected_failure
+        env:
+          NEEDS_JSON: ${{toJSON(needs)}}
+          NEEDS_OUTPUT: ${{fromJSON(needs.lints.outputs._internal_lint_result)[inputs.failing_job]}}
+        run: >
+          echo "status=$NEEDS_OUTPUT" | tee -a $GITHUB_OUTPUT
+      - name: expect failure
+        run: exit 1
+        if: steps.expected_failure.outputs.status != 'failure'

@@ -7,9 +7,22 @@ on:
         description: "Directory that the nix flake resides in."
         default: "."
 
+      # Used for testing this repo:
+      _internal_continue_on_error:
+        description: "Name of the job to set continue-on-error on; pass this only in the tests _inside this repo_. Otherwise your workflow run will pass when it shouldn't."
+        type: string
+        default: ""
+    outputs:
+      _internal_lint_result:
+        description: "Result of the build job"
+        value: '{"fmt": ${{toJSON(jobs.fmt.outputs.result)}}, "flake_safety": ${{toJSON(jobs.flake_safety.outputs.result)}}}'
+
 jobs:
   fmt:
     name: "nix fmt ${{inputs.root}}"
+    continue-on-error: ${{inputs._internal_continue_on_error == 'fmt'}}
+    outputs:
+      result: ${{steps.result.outcome}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,9 +31,13 @@ jobs:
       - run: cd ${{ inputs.root }} && nix fmt
       - name: Show unformatted files, if any
         run: git diff --exit-code
+        id: result
 
   flake_safety:
     name: "nix flake safety"
+    continue-on-error: ${{inputs._internal_continue_on_error == 'flake_safety'}}
+    outputs:
+      result: ${{steps.result.outcome}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,6 +53,7 @@ jobs:
         id: path_nodes
       - name: fail if bad lock entries are present
         if: ${{ steps.path_nodes.outputs.entries != '' }}
+        id: result
         run: |
           echo "The following lock entries are locked as 'path' types, causing the flake to probably be un-usable on machines that don't have that path present:"
           echo "${{steps.path_nodes.outputs.entries}}"

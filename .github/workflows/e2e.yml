@@ -18,3 +18,9 @@ jobs:
     uses: "./.github/workflows/tests.yml"
     with:
       root: "./tests/success"
+
+  fail_on_path_inputs:
+    uses: "./.github/workflows/_internal_lint_failure.yml"
+    with:
+      root: "./tests/fail-safety-check"
+      failing_job: "flake_safety"
