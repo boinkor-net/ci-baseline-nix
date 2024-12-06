@@ -1,0 +1,20 @@
+name: "Tests for this repo"
+on:
+  workflow_call:
+  pull_request:
+
+jobs:
+  success_build:
+    uses: "./.github/workflows/build.yml"
+    with:
+      root: "./tests/success"
+
+  success_lint:
+    uses: "./.github/workflows/lints.yml"
+    with:
+      root: "./tests/success"
+
+  success_test:
+    uses: "./.github/workflows/tests.yml"
+    with:
+      root: "./tests/success"
