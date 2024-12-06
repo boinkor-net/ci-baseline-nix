@@ -1,7 +1,6 @@
 name: "Tests for this repo"
 on:
   workflow_call:
-  pull_request:
 
 jobs:
   success_build:
