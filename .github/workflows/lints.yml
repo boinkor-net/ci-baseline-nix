@@ -46,7 +46,7 @@ jobs:
         run: |
           {
             echo "entries<<EOF"
-            nix flake metadata --json | jq -r '.locks.nodes | map_values(select(.locked.type == "path")) | keys[]'
+            nix flake metadata --json | jq -r '.locks.nodes | map_values(select(.locked.type == "path" and .original.type == "indirect")) | keys[]'
             echo EOF
           } >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.root }}
