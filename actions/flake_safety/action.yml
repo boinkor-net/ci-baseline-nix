@@ -1,0 +1,33 @@
+name: "boinkor.net CI/nix - flake_safety"
+description: "Check that flake.lock doesn't contain any unsafe entries (like path: references)."
+author: "Andreas Fuchs <asf@boinkor.net>"
+inputs:
+  root:
+    description: "Directory that the nix flake resides in."
+    default: "."
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up nix
+      uses: cachix/install-nix-action@v30
+    - name: inputs with unreproducible lock entries
+      shell: bash
+      run: |
+        {
+          echo "entries<<EOF"
+          nix flake metadata --json | jq -r '.locks.nodes | map_values(select(.locked.type == "path" and .original.type == "indirect")) | keys[]'
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+      working-directory: ${{ inputs.root }}
+      id: path_nodes
+    - name: fail if bad lock entries are present
+      shell: bash
+      if: ${{ steps.path_nodes.outputs.entries != '' }}
+      id: result
+      run: |
+        echo "::error file=${{inputs.root}}/flake.nix::The flake has lock entries that are locked as 'path' types, causing the flake to probably be un-usable on machines that don't have that path present:"
+        echo "${{steps.path_nodes.outputs.entries}}"
+        echo ""
+        echo "To remedy, make sure that all of these entries have corresponding inputs in the flake.nix."
+        exit 1

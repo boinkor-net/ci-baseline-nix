@@ -41,22 +41,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v30
-      - name: inputs with unreproducible lock entries
-        run: |
-          {
-            echo "entries<<EOF"
-            nix flake metadata --json | jq -r '.locks.nodes | map_values(select(.locked.type == "path" and .original.type == "indirect")) | keys[]'
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
-        working-directory: ${{ inputs.root }}
-        id: path_nodes
-      - name: fail if bad lock entries are present
-        if: ${{ steps.path_nodes.outputs.entries != '' }}
-        id: result
-        run: |
-          echo "The following lock entries are locked as 'path' types, causing the flake to probably be un-usable on machines that don't have that path present:"
-          echo "${{steps.path_nodes.outputs.entries}}"
-          echo ""
-          echo "To remedy, make sure that all of these entries have corresponding inputs in the flake.nix."
-          exit 1
+      - uses: ./actions/flake_safety
+        with:
+          root: ${{inputs.root}}
