@@ -19,7 +19,16 @@ jobs:
       root: "./tests/success"
 
   fail_on_path_inputs:
-    uses: "./.github/workflows/_internal_lint_failure.yml"
-    with:
-      root: "./tests/fail-safety-check"
-      failing_job: "flake_safety"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./actions/flake_safety
+        with:
+          root: "tests/fail-safety-check"
+        id: failure
+        continue-on-error: true
+      - name: Expect failure
+        run: |
+          echo "::setFailed::Expected the failure step to fail; instead: ${{steps.failure.outcome}}"
+          exit 1
+        if: ${{ success() && steps.failure.outcome != 'failure' }}

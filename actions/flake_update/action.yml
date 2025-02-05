@@ -1,0 +1,47 @@
+name: "boinkor.net CI/nix flake update"
+description: "Updates flake inputs in the current working directory."
+author: "Andreas Fuchs <asf@boinkor.net>"
+inputs:
+  root:
+    description: "Directory that the nix flake resides in."
+    default: "."
+  app_id:
+    description: "Github App ID that is used to issue the PR-creation token"
+    required: true
+  app_installation_id:
+    description: "Github App installation ID that is used to issue the PR-creation token"
+    required: true
+  app_private_key:
+    description: "Github App private key that is used to issue the PR-creation token. Should be a secret."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up nix
+      uses: cachix/install-nix-action@v30
+    - uses: DeterminateSystems/magic-nix-cache-action@v9
+    - uses: fregante/setup-git-user@v2
+    - run: nix flake update --commit-lock-file
+      shell: bash
+
+    - name: Generate token
+      id: generate_token
+      uses: tibdex/github-app-token@v2
+      with:
+        app_id: ${{ inputs.app_id }}
+        installation_id: ${{ inputs.app_installation_id }}
+        permissions: >-
+          {"contents": "write", "pull_requests": "write"}
+        private_key: ${{ inputs.app_private_key }}
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v7
+      with:
+        token: ${{steps.generate_token.outputs.token}}
+        commit-message: "Update flake.lock"
+        assignees: antifuchs
+        delete-branch: true
+        branch: flake-update
+        base: main
+        title: "Update flake.lock"

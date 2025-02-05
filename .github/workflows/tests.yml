@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v30
-      - uses: DeterminateSystems/magic-nix-cache-action@v9
-      - run: nix flake check -L ${{ inputs.check_extra_args }} ${{ inputs.root }}
+      - uses: ./actions/build
+        with:
+          root: ${{inputs.root}}
+          check_extra_args: ${{inputs.check_extra_args}}
