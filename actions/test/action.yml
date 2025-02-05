@@ -1,0 +1,19 @@
+name: "boinkor.net CI/nix flake check"
+description: "Run checks for the nix flake (this includes package builds and nixos tests)."
+author: "Andreas Fuchs <asf@boinkor.net>"
+inputs:
+  root:
+    description: "Directory that the nix flake resides in."
+    default: "."
+  check_extra_args:
+    description: "Extra commandline args to pass to `nix flake check`"
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up nix
+      uses: cachix/install-nix-action@v30
+    - uses: DeterminateSystems/magic-nix-cache-action@v9
+    - run: nix flake check -L ${{ inputs.check_extra_args }} ${{ inputs.root }}
+      shell: bash
