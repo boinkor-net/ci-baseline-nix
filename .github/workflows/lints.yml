@@ -26,12 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v30
-      - uses: DeterminateSystems/magic-nix-cache-action@v9
-      - run: cd ${{ inputs.root }} && nix fmt
-      - name: Show unformatted files, if any
-        run: git diff --exit-code
-        id: result
+      - uses: ./actions/fmt
+        with:
+          root: ${{inputs.root}}
 
   flake_safety:
     name: "nix flake safety"
