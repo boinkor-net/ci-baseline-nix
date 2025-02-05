@@ -24,6 +24,7 @@ runs:
     - uses: fregante/setup-git-user@v2
     - run: nix flake update --commit-lock-file
       shell: bash
+      working-directory: ${{inputs.root}}
 
     - name: Generate token
       id: generate_token
