@@ -1,16 +1,7 @@
 "updates":
-- "directory": "/"
-  "groups":
-    "github-actions":
-      "patterns":
-      - "*"
-  "open-pull-requests-limit": 10
-  "package-ecosystem": "github-actions"
-  "schedule":
-    "interval": "daily"
-    "time": "04:00"
 - "directories":
-    - "/actions/*"
+  - "/"
+  - "/actions/*"
   "groups":
     "github-actions":
       "patterns":
