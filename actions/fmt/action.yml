@@ -11,7 +11,7 @@ runs:
   steps:
     - uses: antifuchs/lix-gha-installer-action@latest
     - name: Check formatting
-      run: cd ${{ inputs.root }} && nix fmt
+      run: cd ${{ inputs.root }} && nix fmt .
       shell: bash
     - name: Show unformatted files, if any
       shell: bash
