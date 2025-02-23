@@ -9,8 +9,9 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Set up nix
-      uses: cachix/install-nix-action@v30
+    - uses: antifuchs/lix-gha-installer-action@latest
+      with:
+        github_access_token: ${{ secrets.GH_REPO_TOKEN }}
     - name: inputs with unreproducible lock entries
       shell: bash
       run: |

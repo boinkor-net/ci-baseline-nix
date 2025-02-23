@@ -9,9 +9,9 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Set up nix
-      uses: cachix/install-nix-action@v30
-    - uses: DeterminateSystems/magic-nix-cache-action@v9
+    - uses: antifuchs/lix-gha-installer-action@latest
+      with:
+        github_access_token: ${{ secrets.GH_REPO_TOKEN }}
     - name: Check formatting
       run: cd ${{ inputs.root }} && nix fmt
       shell: bash
