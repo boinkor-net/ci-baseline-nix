@@ -19,8 +19,6 @@ runs:
   using: "composite"
   steps:
     - uses: antifuchs/lix-gha-installer-action@latest
-      with:
-        github_access_token: ${{ secrets.GH_REPO_TOKEN }}
     - uses: fregante/setup-git-user@v2
     - run: nix flake update --commit-lock-file
       shell: bash

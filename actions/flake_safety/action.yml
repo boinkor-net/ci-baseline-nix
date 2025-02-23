@@ -10,8 +10,6 @@ runs:
   using: "composite"
   steps:
     - uses: antifuchs/lix-gha-installer-action@latest
-      with:
-        github_access_token: ${{ secrets.GH_REPO_TOKEN }}
     - name: inputs with unreproducible lock entries
       shell: bash
       run: |

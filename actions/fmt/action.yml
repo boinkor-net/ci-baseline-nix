@@ -10,8 +10,6 @@ runs:
   using: "composite"
   steps:
     - uses: antifuchs/lix-gha-installer-action@latest
-      with:
-        github_access_token: ${{ secrets.GH_REPO_TOKEN }}
     - name: Check formatting
       run: cd ${{ inputs.root }} && nix fmt
       shell: bash
