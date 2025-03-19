@@ -8,10 +8,21 @@ inputs:
   installable:
     description: "The derivation to build. That's the part after the # in a flake reference."
     default: ""
+  extra_cache_key_elements:
+    description: "Extra elements on the nix store cache key name"
+    default: ""
 
 runs:
   using: "composite"
   steps:
     - uses: antifuchs/lix-gha-installer-action@latest
+    - uses: nix-community/cache-nix-action@v6
+      with:
+        primary-key: nix-store-${{ runner.os }}-${{ hashFiles(format('{0}/**/flake.lock', inputs.root)) }}${{ inputs.extra_cache_key_elements }}
+        gc-max-store-size-linux: 1G
+        purge: true
+        purge-created: 86400 # all outdated cache keys older than 1 day
+        purge-prefixes: nix-store-${{ runner.os }}-
+        purge-primary-key: never
     - run: nix build --no-link ${{inputs.root}}#${{inputs.installable}}
       shell: bash
