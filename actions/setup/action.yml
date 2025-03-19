@@ -1,0 +1,38 @@
+name: "boinkor.net CI/nix - fmt"
+description: "Check that all nix files are properly formatted."
+author: "Andreas Fuchs <asf@boinkor.net>"
+inputs:
+  extra_nix_config:
+    description: "Extra lines to add to nix.conf"
+  tailnet_client_id:
+    description: "Tailnet OAuth Client ID for reaching the nix cache, if necessary."
+  tailnet_client_secret:
+    description: "Tailnet OAuth Client Secret for reaching the nix cache, if necessary."
+  tailnet_tags:
+    description: "Tags to request for the node authenticated by the tailnet oauth client id and secret."
+    default: "tag:ci-external"
+  attic_cache:
+    description: "An optional attic nix cache's store name."
+  attic_endpoint:
+    description: "URL where the attic nix cache can be reached."
+  attic_token:
+    description: "Token for authenticating to the attic nix cache."
+
+runs:
+  using: "composite"
+  steps:
+    - uses: samueldr/lix-gha-installer-action@latest
+      with:
+        extra_nix_config: ${{ inputs.extra_nix_config }}
+    - uses: tailscale/github-action@v3
+      if: "${{ inputs.tailnet_client_id != '' }}"
+      with:
+        oauth-client-id: ${{ inputs.tailnet_client_id }}
+        oauth-secret: ${{ inputs.tailnet_client_secret }}
+        tags: ${{ inputs.tailnet_tags }}
+    - uses: ryanccn/attic-action@v0
+      if: "${{ inputs.attic_cache != '' }}"
+      with:
+        cache: ${{ inputs.attic_cache }}
+        endpoint: ${{ inputs.attic_endpoint }}
+        token: ${{ inputs.attic_token }}
