@@ -25,13 +25,13 @@ runs:
       with:
         extra_nix_config: ${{ inputs.extra_nix_config }}
     - uses: tailscale/github-action@v3
-      if: "${{ inputs.tailnet_client_id != '' }}"
+      if: ${{ inputs.tailnet_client_secret != '' }}
       with:
         oauth-client-id: ${{ inputs.tailnet_client_id }}
         oauth-secret: ${{ inputs.tailnet_client_secret }}
         tags: ${{ inputs.tailnet_tags }}
     - uses: ryanccn/attic-action@v0
-      if: "${{ inputs.attic_cache != '' }}"
+      if: ${{ inputs.attic_cache != '' }}
       with:
         cache: ${{ inputs.attic_cache }}
         endpoint: ${{ inputs.attic_endpoint }}

@@ -8,10 +8,14 @@ inputs:
   installable:
     description: "The derivation to build. That's the part after the # in a flake reference."
     default: ""
+  skip_nix_setup:
+    description: "Whether to set up nix in this action. Defaults to false."
+    default: false
 
 runs:
   using: "composite"
   steps:
-    - uses: antifuchs/lix-gha-installer-action@latest
+    - uses: samueldr/lix-gha-installer-action@latest
+      if: "${{ inputs.skip_nix_setup != 'true' }}"
     - run: nix build --no-link ${{inputs.root}}#${{inputs.installable}}
       shell: bash
