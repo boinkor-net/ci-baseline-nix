@@ -2,6 +2,9 @@ name: "boinkor.net CI/nix - fmt"
 description: "Check that all nix files are properly formatted."
 author: "Andreas Fuchs <asf@boinkor.net>"
 inputs:
+  root:
+    description: "Root directory where the flake.lock file resides"
+    default: "."
   extra_nix_config:
     description: "Extra lines to add to nix.conf"
   tailnet_client_id:
@@ -30,6 +33,25 @@ runs:
         oauth-client-id: ${{ inputs.tailnet_client_id }}
         oauth-secret: ${{ inputs.tailnet_client_secret }}
         tags: ${{ inputs.tailnet_tags }}
+    - name: "Restore attic-client binary"
+      if: inputs.attic_cache != ''
+      uses: actions/cache@v4
+      id: attic-cache
+      with:
+        path: /tmp/attic-client
+        key: attic-client-${{runner.os}}-${{ hashFiles(format('{0}/flake.lock', inputs.root)) }}
+    - name: "Make attic-client binary cacheable"
+      if: inputs.attic_cache != '' && steps.attic-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        nix copy --to file:///tmp/attic-client --inputs-from ${{inputs.root}} nixpkgs#attic-client
+    - name: "Install attic-client binary"
+      if: inputs.attic_cache != ''
+      shell: bash
+      run: |
+        find /tmp/attic-client -type f -print0 | xargs -0 touch -d '@0'
+        nix copy --inputs-from ${{inputs.root}} --from file:///tmp/attic-client nixpkgs#attic-client
+        nix profile install --inputs-from ${{inputs.root}} nixpkgs#attic-client
     - uses: ryanccn/attic-action@v0
       if: ${{ inputs.attic_cache != '' }}
       with:
