@@ -3,6 +3,16 @@ on:
   workflow_call:
 
 jobs:
+  success_setup_and_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./actions/setup
+      - uses: ./actions/build
+        with:
+          skip_nix_setup: true
+          root: "./tests/success"
+
   success_build:
     runs-on: ubuntu-latest
     steps:
