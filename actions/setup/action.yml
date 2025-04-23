@@ -29,6 +29,6 @@ runs:
         lix_conf: ${{ inputs.extra_nix_config }}
     - uses: nix-community/cache-nix-action@v6
       with:
-        primary-key: nix-${{ runner.os }}-${{ hashFiles(format('{0}/**/*.nix', inputs.root), format('{0}/**/flake.lock', inputs.root)) }}
-        restore-prefixes-first-match: nix-${{ runner.os }}-
+        primary-key: nix-${{ runner.os }}-${{ hashFiles(format('{0}/**/*.nix', inputs.root), format('{0}/**/flake.lock', inputs.root)) }}-${{ github.job }}
+        restore-prefixes-first-match: nix-${{ runner.os }}
         gc-max-store-size-linux: 1G
