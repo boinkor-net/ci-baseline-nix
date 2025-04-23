@@ -8,53 +8,27 @@ inputs:
   extra_nix_config:
     description: "Extra lines to add to nix.conf"
   tailnet_client_id:
-    description: "Tailnet OAuth Client ID for reaching the nix cache, if necessary."
+    description: "DEPRECATED. Tailnet OAuth Client ID for reaching the nix cache, if necessary."
   tailnet_client_secret:
-    description: "Tailnet OAuth Client Secret for reaching the nix cache, if necessary."
+    description: "DEPRECATED. Tailnet OAuth Client Secret for reaching the nix cache, if necessary."
   tailnet_tags:
-    description: "Tags to request for the node authenticated by the tailnet oauth client id and secret."
+    description: "DEPRECATED. Tags to request for the node authenticated by the tailnet oauth client id and secret."
     default: "tag:ci-external"
   attic_cache:
-    description: "An optional attic nix cache's store name."
+    description: "DEPRECATED. An optional attic nix cache's store name."
   attic_endpoint:
-    description: "URL where the attic nix cache can be reached."
+    description: "DEPRECATED. URL where the attic nix cache can be reached."
   attic_token:
-    description: "Token for authenticating to the attic nix cache."
+    description: "DEPRECATED. Token for authenticating to the attic nix cache."
 
 runs:
   using: "composite"
   steps:
-    - uses: samueldr/lix-gha-installer-action@latest
+    - uses: canidae-solutions/lix-quick-install-action@v2
       with:
-        extra_nix_config: ${{ inputs.extra_nix_config }}
-    - uses: tailscale/github-action@v3
-      if: ${{ inputs.tailnet_client_secret != '' }}
+        lix_conf: ${{ inputs.extra_nix_config }}
+    - uses: nix-community/cache-nix-action@v6
       with:
-        oauth-client-id: ${{ inputs.tailnet_client_id }}
-        oauth-secret: ${{ inputs.tailnet_client_secret }}
-        tags: ${{ inputs.tailnet_tags }}
-    - name: "Restore attic-client binary"
-      if: inputs.attic_cache != ''
-      uses: actions/cache@v4
-      id: attic-cache
-      with:
-        path: /tmp/attic-client
-        key: attic-client-${{runner.os}}-${{ hashFiles(format('{0}/flake.lock', inputs.root)) }}
-    - name: "Make attic-client binary cacheable"
-      if: inputs.attic_cache != '' && steps.attic-cache.outputs.cache-hit != 'true'
-      shell: bash
-      run: |
-        nix copy --to file:///tmp/attic-client --inputs-from ${{inputs.root}} nixpkgs#attic-client
-    - name: "Install attic-client binary"
-      if: inputs.attic_cache != ''
-      shell: bash
-      run: |
-        find /tmp/attic-client -type f -print0 | xargs -0 touch -d '@0'
-        nix copy --inputs-from ${{inputs.root}} --from file:///tmp/attic-client nixpkgs#attic-client
-        nix profile install --inputs-from ${{inputs.root}} nixpkgs#attic-client
-    - uses: ryanccn/attic-action@v0
-      if: ${{ inputs.attic_cache != '' }}
-      with:
-        cache: ${{ inputs.attic_cache }}
-        endpoint: ${{ inputs.attic_endpoint }}
-        token: ${{ inputs.attic_token }}
+        primary-key: nix-${{ runner.os }}-${{ hashFiles(format('{0}/**/*.nix', inputs.root), format('{0}/**/flake.lock', inputs.root)) }}
+        restore-prefixes-first-match: nix-${{ runner.os }}-
+        gc-max-store-size-linux: 1G
