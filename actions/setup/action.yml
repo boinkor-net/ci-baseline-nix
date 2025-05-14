@@ -24,7 +24,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: canidae-solutions/lix-quick-install-action@v2
+    - uses: canidae-solutions/lix-quick-install-action@v3
       with:
         lix_conf: ${{ inputs.extra_nix_config }}
     - uses: nix-community/cache-nix-action@v6
