@@ -15,8 +15,11 @@ inputs:
     description: "Github App private key that is used to issue the PR-creation token. Should be a secret."
     required: true
   skip_nix_setup:
-    description: "Whether to set up nix in this action. Defaults to false."
+    description: "Whether to set up nix in this action. Defaults to false. Should be true if you use the setup action in this repo."
     default: false
+  auto_merge:
+    description: "Whether to automatically merge the created pull request."
+    default: "false"
 
 runs:
   using: "composite"
@@ -39,6 +42,7 @@ runs:
         private_key: ${{ inputs.app_private_key }}
 
     - name: Create Pull Request
+      id: create_pull_request
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{steps.generate_token.outputs.token}}
@@ -48,3 +52,12 @@ runs:
         branch: flake-update
         base: main
         title: "Update flake.lock"
+
+    - name: Set PR to auto-merge
+      if: ${{ inputs.auto_merge == 'true' && contains(fromJson('["created", "updated"]'), steps.create_pull_request.outputs.pull-request-operation) }}
+      shell: bash
+      run: |
+        gh pr merge --auto --merge "$PR_URL"
+      env:
+        GH_TOKEN: ${{steps.generate_token.outputs.token}}
+        PR_URL: ${{steps.create_pull_request.outputs.pull-request-url}}
