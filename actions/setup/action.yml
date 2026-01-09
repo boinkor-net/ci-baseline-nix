@@ -24,10 +24,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: canidae-solutions/lix-quick-install-action@v2
+    - uses: canidae-solutions/lix-quick-install-action@v3
       with:
         lix_conf: ${{ inputs.extra_nix_config }}
-    - uses: nix-community/cache-nix-action@v6
+    - uses: nix-community/cache-nix-action@v7
       with:
         primary-key: nix-${{ runner.os }}-${{ hashFiles(format('{0}/**/*.nix', inputs.root), format('{0}/**/flake.lock', inputs.root)) }}-${{ github.job }}
         restore-prefixes-first-match: nix-${{ runner.os }}
